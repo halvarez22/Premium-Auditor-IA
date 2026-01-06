@@ -1,3 +1,6 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import {
     LayoutDashboard,
     Users,
@@ -7,20 +10,64 @@ import {
     Database,
     ArrowLeft,
     Bell,
-    Search
+    Search,
+    Loader2
 } from "lucide-react";
 import Link from "next/link";
 
+interface ExtractedData {
+    company: {
+        name: string;
+        rfc: string;
+        extraction_date: string;
+    };
+    statistics: {
+        total_rfcs: number;
+        total_amounts_sampled: number;
+        avg_amount: number;
+        max_amount: number;
+        min_amount: number;
+    };
+    rfcs: string[];
+    sample_amounts: number[];
+}
+
 export default function Dashboard({ params }: { params: { company: string } }) {
-    // En un entorno real, aquí leeríamos los datos del .bak o de Firestore
-    // Basado en el nombre de la carpeta (params.company)
+    const [data, setData] = useState<ExtractedData | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
     const isMajoba = params.company.includes("Majoba");
-    const data = {
+    const fallbackData = {
         name: isMajoba ? "Transportes Majoba S.A. De C.V." : "TRANSPORTES ELIZONDO JIMENEZ",
         rfc: isMajoba ? "TMA1402281S3" : "TEJ2304191I0",
         totalReg: isMajoba ? 167869 : 14642,
         diskSize: isMajoba ? "2.27 GB" : "0.20 GB",
     };
+
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                const response = await fetch(`/api/data?company=${params.company}`);
+                if (response.ok) {
+                    const result = await response.json();
+                    setData(result.data);
+                } else {
+                    console.warn('API returned error, using fallback data');
+                }
+            } catch (err) {
+                console.error('Failed to fetch data:', err);
+                setError('Using local data');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchData();
+    }, [params.company]);
+
+    const displayData = data || fallbackData;
+    const hasRealData = data !== null;
 
     return (
         <div className="flex h-screen overflow-hidden">
@@ -40,10 +87,14 @@ export default function Dashboard({ params }: { params: { company: string } }) {
                 </nav>
 
                 <div className="p-4 bg-white/5 m-4 rounded-xl">
-                    <p className="text-xs text-slate-500 mb-2 uppercase font-bold tracking-tighter">Backup Real</p>
-                    <p className="text-sm font-medium truncate">{data.diskSize}</p>
+                    <p className="text-xs text-slate-500 mb-2 uppercase font-bold tracking-tighter">
+                        {hasRealData ? 'Datos Reales' : 'Backup Real'}
+                    </p>
+                    <p className="text-sm font-medium truncate">
+                        {hasRealData ? `${data.statistics.total_rfcs} RFCs` : fallbackData.diskSize}
+                    </p>
                     <div className="w-full bg-white/10 h-1.5 rounded-full mt-2">
-                        <div className="bg-sky-400 h-full w-3/4 rounded-full" />
+                        <div className="bg-sky-400 h-full w-3/4 rounded-full animate-pulse-slow" />
                     </div>
                 </div>
             </aside>
@@ -57,9 +108,18 @@ export default function Dashboard({ params }: { params: { company: string } }) {
                             <ArrowLeft size={20} />
                         </Link>
                         <div>
-                            <h1 className="font-bold text-lg">{data.name}</h1>
-                            <p className="text-xs text-slate-500 font-mono">{data.rfc}</p>
+                            <h1 className="font-bold text-lg">
+                                {hasRealData ? data.company.name : fallbackData.name}
+                            </h1>
+                            <p className="text-xs text-slate-500 font-mono">
+                                {hasRealData ? data.company.rfc : fallbackData.rfc}
+                            </p>
                         </div>
+                        {hasRealData && (
+                            <div className="ml-4 px-3 py-1 bg-emerald-500/10 border border-emerald-500/30 rounded-full">
+                                <span className="text-xs font-bold text-emerald-400">DATOS REALES</span>
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex items-center gap-6">
@@ -81,54 +141,79 @@ export default function Dashboard({ params }: { params: { company: string } }) {
 
                 {/* Dashboard View */}
                 <div className="flex-grow p-8 overflow-y-auto">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        <DashboardCard
-                            label="Registros de Pólizas"
-                            value={data.totalReg.toLocaleString()}
-                            subValue="Encontrados en Backup"
-                            icon={<FileSearch className="text-sky-400" />}
-                        />
-                        <DashboardCard
-                            label="Alerta de Riesgo"
-                            value="Crítico"
-                            subValue="Detectado por IA"
-                            icon={<ShieldAlert className="text-rose-400" />}
-                            color="rose"
-                        />
-                        <DashboardCard
-                            label="I.V.A. Determinado"
-                            value="$0.00"
-                            subValue="Pendiente de extracción"
-                            icon={<TrendingUp className="text-emerald-400" />}
-                            color="emerald"
-                        />
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        {/* Chart Placeholder / Info Section */}
-                        <div className="glass-card min-h-[400px] flex flex-col justify-center items-center text-center">
-                            <div className="w-20 h-20 bg-sky-500/10 rounded-full flex items-center justify-center mb-6">
-                                <Database className="text-sky-400" size={40} />
-                            </div>
-                            <h3 className="text-2xl font-bold mb-2">Motor de Extracción Listo</h3>
-                            <p className="text-slate-400 max-w-md">
-                                Estamos listos para procesar los <b>{data.totalReg.toLocaleString()}</b> registros de este respaldo.
-                                Inicie la auditoría profunda para que la IA clasifique cada movimiento.
-                            </p>
-                            <button className="mt-8 btn-premium">Iniciar Auditoría IA</button>
+                    {loading ? (
+                        <div className="flex items-center justify-center h-full">
+                            <Loader2 className="animate-spin text-sky-400" size={48} />
                         </div>
-
-                        <div className="glass-card">
-                            <h3 className="text-xl font-bold mb-6">Metadatos del Respaldo</h3>
-                            <div className="space-y-4">
-                                <MetaItem label="Empresa" value={data.name} />
-                                <MetaItem label="RFC" value={data.rfc} />
-                                <MetaItem label="Versión Producto" value="12.0 (SQL Server)" />
-                                <MetaItem label="Fecha Respaldo" value={isMajoba ? "2025-10-27" : "2025-10-24"} />
-                                <MetaItem label="Tolerancia Fiscal" value="95%" />
+                    ) : (
+                        <>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                <DashboardCard
+                                    label="RFCs Únicos Encontrados"
+                                    value={hasRealData ? data.statistics.total_rfcs.toString() : fallbackData.totalReg.toLocaleString()}
+                                    subValue={hasRealData ? "Extraídos del Backup" : "Registros en Backup"}
+                                    icon={<FileSearch className="text-sky-400" />}
+                                />
+                                <DashboardCard
+                                    label="Monto Promedio"
+                                    value={hasRealData ? `$${data.statistics.avg_amount.toFixed(2)}` : "$0.00"}
+                                    subValue={hasRealData ? `${data.statistics.total_amounts_sampled} montos muestreados` : "Pendiente de extracción"}
+                                    icon={<TrendingUp className="text-emerald-400" />}
+                                    color="emerald"
+                                />
+                                <DashboardCard
+                                    label="Monto Máximo Detectado"
+                                    value={hasRealData ? `$${data.statistics.max_amount.toFixed(2)}` : "$0.00"}
+                                    subValue={hasRealData ? "En muestra analizada" : "Pendiente"}
+                                    icon={<ShieldAlert className="text-amber-400" />}
+                                    color="amber"
+                                />
                             </div>
-                        </div>
-                    </div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                {/* RFCs List */}
+                                {hasRealData && data.rfcs.length > 0 && (
+                                    <div className="glass-card">
+                                        <h3 className="text-xl font-bold mb-6">RFCs Detectados (Primeros 20)</h3>
+                                        <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                                            {data.rfcs.slice(0, 20).map((rfc, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors"
+                                                >
+                                                    <span className="font-mono text-sm">{rfc}</span>
+                                                    <span className="text-xs text-slate-500">#{idx + 1}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="glass-card">
+                                    <h3 className="text-xl font-bold mb-6">Metadatos del Respaldo</h3>
+                                    <div className="space-y-4">
+                                        <MetaItem
+                                            label="Empresa"
+                                            value={hasRealData ? data.company.name : fallbackData.name}
+                                        />
+                                        <MetaItem
+                                            label="RFC"
+                                            value={hasRealData ? data.company.rfc : fallbackData.rfc}
+                                        />
+                                        <MetaItem label="Versión Producto" value="12.0 (SQL Server)" />
+                                        <MetaItem
+                                            label="Fecha Extracción"
+                                            value={hasRealData ? new Date(data.company.extraction_date).toLocaleDateString() : "Pendiente"}
+                                        />
+                                        <MetaItem
+                                            label="Estado"
+                                            value={hasRealData ? "✅ Datos Extraídos" : "⏳ Pendiente"}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
             </main>
         </div>
@@ -137,8 +222,12 @@ export default function Dashboard({ params }: { params: { company: string } }) {
 
 function NavItem({ icon, label, active = false }: any) {
     return (
-        <div className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer ${active ? 'bg-sky-500/10 text-sky-400 border border-sky-500/20' : 'text-slate-400 hover:bg-white/5 border border-transparent'
-            }`}>
+        <div
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer ${active
+                    ? "bg-sky-500/10 text-sky-400 border border-sky-500/20"
+                    : "text-slate-400 hover:bg-white/5 border border-transparent"
+                }`}
+        >
             {icon}
             <span className="font-medium">{label}</span>
         </div>
@@ -153,9 +242,7 @@ function DashboardCard({ label, value, subValue, icon, color = "sky" }: any) {
                 <p className={`text-3xl font-bold text-${color}-400 mb-1`}>{value}</p>
                 <p className="text-slate-500 text-xs">{subValue}</p>
             </div>
-            <div className={`p-4 rounded-2xl bg-${color}-500/10`}>
-                {icon}
-            </div>
+            <div className={`p-4 rounded-2xl bg-${color}-500/10`}>{icon}</div>
         </div>
     );
 }
