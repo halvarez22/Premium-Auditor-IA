@@ -14,7 +14,10 @@ import {
     Loader2
 } from "lucide-react";
 import Link from "next/link";
+import ForensicAlerts from '@/components/ForensicAlerts';
 import EFOSAnalysis from '@/components/EFOSAnalysis';
+
+
 
 interface ExtractedData {
     company: {
@@ -214,7 +217,14 @@ export default function Dashboard({ params }: { params: { company: string } }) {
                                 </div>
                             </div>
 
-                            {/* EFOS Analysis Section */}
+                            {/* Forensic Analysis Section (Internal Data) */}
+                            {hasRealData && (
+                                <div className="mt-8">
+                                    <ForensicAlerts companyId={params.company} />
+                                </div>
+                            )}
+
+                            {/* EFOS Analysis Section (External Data) */}
                             {hasRealData && data.rfcs.length > 0 && (
                                 <div className="mt-8">
                                     <EFOSAnalysis rfcs={data.rfcs} />
