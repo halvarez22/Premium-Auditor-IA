@@ -1,8 +1,14 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY || "");
+const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 
-export const auditModel = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+if (!apiKey) {
+    console.error("❌ GOOGLE_GENERATIVE_AI_API_KEY is missing in environment variables");
+}
+
+const genAI = new GoogleGenerativeAI(apiKey || "missing_key");
+
+export const auditModel = genAI.getGenerativeModel({ model: "gemini-pro" });
 
 /**
  * Analiza un conjunto de pólizas reales en busca de anomalías fiscales o contables.
