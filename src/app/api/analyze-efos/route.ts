@@ -71,10 +71,16 @@ Responde ÚNICAMENTE en formato JSON:
         }
 
     } catch (error: any) {
-        console.error('EFOS Analysis Error:', error);
+        console.error('EFOS Analysis Error (Detailed):', error);
+
         return NextResponse.json({
             error: 'Analysis failed',
-            message: error.message
+            details: {
+                message: error.message || 'Unknown error',
+                name: error.name || 'Error',
+                cause: error.cause ? String(error.cause) : undefined,
+                stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+            }
         }, { status: 500 });
     }
 }
