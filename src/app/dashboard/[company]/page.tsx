@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import ForensicAlerts from '@/components/ForensicAlerts';
+import PayrollAuditor from '@/components/PayrollAuditor';
 import EFOSAnalysis from '@/components/EFOSAnalysis';
 
 
@@ -222,6 +223,11 @@ export default function Dashboard({ params }: { params: { company: string } }) {
                                 <div className="mt-8">
                                     <ForensicAlerts companyId={params.company} />
                                 </div>
+                            )}
+
+                            {/* Payroll Auditor Section */}
+                            {hasRealData && (
+                                <PayrollAuditor companyId={params.company} />
                             )}
 
                             {/* EFOS Analysis Section (External Data) */}

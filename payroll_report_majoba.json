@@ -1,0 +1,71 @@
+{
+  "total_employees_detected": 210,
+  "sample_employees": [
+    "GOMG690105LZ2",
+    "JUGC980407IP3",
+    "RARA801225AC0",
+    "DUBA870826AX8",
+    "MENA810818HGT",
+    "GOSJ8502153U6",
+    "RAJI851218D76",
+    "LELS921117LX7",
+    "EOSG760930LX4",
+    "GAGU700516HSP",
+    "CUMG840929CZ1",
+    "DACR840513GK6",
+    "LELS921117MGT",
+    "AEMD860721J34",
+    "AEGJ920412HGT",
+    "BUMS880423JK5",
+    "RABJ980416SX7",
+    "PEBN791213V17",
+    "SEMG781212QW1",
+    "ZEPM851004KW5",
+    "MARE880126357",
+    "MOCJ661007BF3",
+    "MABJ800712P61",
+    "MAHL860514MGT",
+    "JISF8406103YA",
+    "SEMG781212HGT",
+    "GAPM980327HGT",
+    "MUMJ661013DE4",
+    "AAPL910317JX1",
+    "ROSR890703TT6",
+    "GAAB870528GV9",
+    "MOBC930806KT9",
+    "GULL850112PIA",
+    "AAMA690821HTS",
+    "CEPJ961227HGT",
+    "MORA891010DE4",
+    "PEMV730921HTC",
+    "SEJE561010MA4",
+    "OEMJ930527HTS",
+    "MORA891010MGT",
+    "COEJ780405JZ0",
+    "JIOA790527MGT",
+    "JIOA790527BF7",
+    "AOAA950319I73",
+    "JISF860807D42",
+    "PEHJ730121AB3",
+    "LORI851129MGT",
+    "MENA810818A69",
+    "GOGA3408206V7",
+    "EOSG760930MGT"
+  ],
+  "risk_findings": {
+    "total_risks": 2,
+    "breakdown": {
+      "bono": 2
+    },
+    "evidence": [
+      {
+        "keyword": "bono",
+        "context": "\u0005\u0000\u0001\u0000\u0006!c{lmn\u0000 e\u0010\u0005\u0000\u0001\u0000\u0006bono{|*\u0005\u0000\u0001\u0000\u0006\u0012`$iqb p1.\u001a\u0005\u0000\u0001\u0000\u0006vqs\"lp\u001f\u0015\u0010\u0005\u0000\u0001"
+      },
+      {
+        "keyword": "bono",
+        "context": "\b\u0000\t\u0000\u0000e\u0002\u0000\u0000\u0000\u0003\u0000\"peaje abono por aclaracion\" valorunitario=\"83.6"
+      }
+    ]
+  }
+}
