@@ -63,27 +63,41 @@ class AccountingDataExtractor:
         return amounts_found
     
     def extract_dates(self):
-        """Extrae fechas en formato YYYY-MM-DD o DD/MM/YYYY"""
+        """Extrae fechas en múltiples formatos comunes en SQL Server"""
         date_patterns = [
+            # YYYY-MM-DD (ISO format)
             re.compile(rb'20[0-9]{2}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])'),
-            re.compile(rb'(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/20[0-9]{2}')
+            # DD/MM/YYYY
+            re.compile(rb'(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/20[0-9]{2}'),
+            # YYYY/MM/DD
+            re.compile(rb'20[0-9]{2}/(0[1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[01])'),
+            # YYYYMMDD (compact format)
+            re.compile(rb'20[0-9]{2}(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])'),
+            # MM/DD/YYYY (American format)
+            re.compile(rb'(0[1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[01])/20[0-9]{2}')
         ]
         
         dates_found = []
         with open(self.bak_file, 'rb') as f:
-            chunk_size = 5 * 1024 * 1024
+            chunk_size = 10 * 1024 * 1024  # Increased chunk size
             chunk_count = 0
-            while chunk_count < 10:
+            while chunk_count < 20:  # More chunks to scan
                 data = f.read(chunk_size)
                 if not data:
                     break
                 for pattern in date_patterns:
                     for match in pattern.finditer(data):
-                        dates_found.append(match.group(0).decode('ascii', errors='ignore'))
+                        date_str = match.group(0).decode('ascii', errors='ignore')
+                        # Filter out dates that are clearly invalid
+                        if '2024' in date_str or '2025' in date_str:
+                            dates_found.append(date_str)
                 chunk_count += 1
         
-        self.data['dates'] = list(set(dates_found))[:500]
-        print(f"✓ Extraídas {len(set(dates_found))} fechas únicas (guardadas primeras 500)")
+        unique_dates = list(set(dates_found))
+        self.data['dates'] = unique_dates[:500]
+        print(f"✓ Extraídas {len(unique_dates)} fechas únicas (guardadas primeras 500)")
+        if unique_dates:
+            print(f"  Ejemplo: {unique_dates[0]}")
         return dates_found
     
     def extract_table_names(self):

@@ -1,0 +1,13 @@
+{
+  "error": "404 models/gemini-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.",
+  "total_rfcs_analyzed": 50,
+  "risk_summary": {
+    "low": 0,
+    "medium": 0,
+    "high": 0,
+    "critical": 0
+  },
+  "flagged_rfcs": [],
+  "general_observations": "Error en el análisis",
+  "compliance_score": 0
+}

@@ -14,6 +14,7 @@ import {
     Loader2
 } from "lucide-react";
 import Link from "next/link";
+import EFOSAnalysis from '@/components/EFOSAnalysis';
 
 interface ExtractedData {
     company: {
@@ -212,6 +213,13 @@ export default function Dashboard({ params }: { params: { company: string } }) {
                                     </div>
                                 </div>
                             </div>
+
+                            {/* EFOS Analysis Section */}
+                            {hasRealData && data.rfcs.length > 0 && (
+                                <div className="mt-8">
+                                    <EFOSAnalysis rfcs={data.rfcs} />
+                                </div>
+                            )}
                         </>
                     )}
                 </div>
@@ -224,8 +232,8 @@ function NavItem({ icon, label, active = false }: any) {
     return (
         <div
             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all cursor-pointer ${active
-                    ? "bg-sky-500/10 text-sky-400 border border-sky-500/20"
-                    : "text-slate-400 hover:bg-white/5 border border-transparent"
+                ? "bg-sky-500/10 text-sky-400 border border-sky-500/20"
+                : "text-slate-400 hover:bg-white/5 border border-transparent"
                 }`}
         >
             {icon}
