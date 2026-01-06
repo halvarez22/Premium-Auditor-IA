@@ -7,9 +7,10 @@ export async function GET(request: Request) {
     const company = searchParams.get('company');
 
     try {
-        // Definir la ruta del reporte de anomalías
-        // En un caso real, esto sería dinámico según la empresa
-        const reportPath = path.join(process.cwd(), 'anomaly_report_elizondo.json');
+        // Definir la ruta del reporte de anomalías dinámicamente
+        const isMajoba = company?.includes('Majoba');
+        const filename = isMajoba ? 'anomaly_report_majoba.json' : 'anomaly_report_elizondo.json';
+        const reportPath = path.join(process.cwd(), filename);
 
         if (!fs.existsSync(reportPath)) {
             return NextResponse.json({

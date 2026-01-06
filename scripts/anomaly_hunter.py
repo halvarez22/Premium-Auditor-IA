@@ -36,7 +36,7 @@ class AnomalyHunter:
             chunk_count = 0
             max_chunks = 30 # Aumentamos escaneo a 300MB
             
-            while chunk_count < max_chunks:
+            while chunk_count < 50: # Aumentamos escaneo a 500MB para Majoba
                 data = f.read(chunk_size)
                 if not data:
                     break
@@ -50,13 +50,11 @@ class AnomalyHunter:
                     except: pass
 
                 # Si encontramos pocos en XML, usar el genérico
-                if len(self.amounts) < 100:
+                if len(self.amounts) < 500: # Aumentar umbral de switch
                     for match in generic_pattern.finditer(data):
                         try:
                             val = float(match.group(0).decode('ascii'))
                             # Filtros para reducir ruido:
-                            # - Mayor a 1.0 (evitar porcentajes o factores)
-                            # - Menor a 100 millones (evitar IDs o teléfonos)
                             if 1.0 < val < 100000000.0:
                                 self.amounts.append(val)
                         except: pass
@@ -188,11 +186,11 @@ class AnomalyHunter:
 
 if __name__ == "__main__":
     print("="*60)
-    print("🔎 ENGINE DE DETECCIÓN DE ANOMALÍAS - AUDITOR-IA")
+    print("🔎 ENGINE DE DETECCIÓN DE ANOMALÍAS - AUDITOR-IA (MAJOBA)")
     print("="*60)
     
-    # Ruta del archivo (Elizondo)
-    archivo_bak = r"C:\IA_nubes\auditorIA_1\ctTRANSPORTES_ELIZONDO_2024-20251024-1750\document_9aa3cd70-d41b-4905-8c9d-dc96db1a6e8a_content.bak"
+    # Ruta del archivo (Majoba)
+    archivo_bak = r"C:\IA_nubes\auditorIA_1\ctTransportes_Majoba_SA_De_CV-20251027-1050\document_584def9a-95e2-4822-83db-889de0d559d0_content.bak"
     
     hunter = AnomalyHunter(archivo_bak)
     
@@ -203,5 +201,6 @@ if __name__ == "__main__":
     hunter.hunt_suspicious_concepts()
     
     # Guardar resultados
-    hunter.save_report("anomaly_report_elizondo.json")
+    # Usamos el ID del directorio para facilitar la carga en el dashboard
+    hunter.save_report("anomaly_report_majoba.json")
     print("\n✅ Análisis finalizado.")
